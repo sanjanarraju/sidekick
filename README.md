@@ -1,4 +1,4 @@
-# 🤖 Sidekick: Autonomous Browser-Operating Agent
+# Sidekick
 
 A browser-operating agent designed for open-ended tasks. Ask Sidekick to find the best restaurants in NYC, and it will spin up a live browser instance using Playwright, navigate the web, research options in real time, and compile the results.
 
@@ -6,7 +6,7 @@ Powered by **LangGraph**, **Gradio**, and **LangChain**, Sidekick operates as an
 
 ---
 
-## 🔄 How the Agent Loop Works
+## How the Agent Loop Works
 
 When you submit a request, Sidekick executes an autonomous execution and evaluation cycle:
 
@@ -17,7 +17,7 @@ When you submit a request, Sidekick executes an autonomous execution and evaluat
 
 ---
 
-## 📦 Core Project Files
+## Core Project Files
 
 This repository is optimized down to only the core standalone deployment files:
 * **`app.py`**: The web interface layer built with Gradio. Handles the UI blocks, chat states, and real-time event listeners.
@@ -27,7 +27,7 @@ This repository is optimized down to only the core standalone deployment files:
 
 ---
 
-## 💻 How to Run It (Step-by-Step Commands)
+## How to Run It
 
 Open your terminal inside this project folder and execute the following commands in order to get the application up and running:
 
