@@ -1,0 +1,11 @@
+gradio>=4.44.1
+langgraph
+langchain
+langchain-openai
+langchain-community
+langchain-experimental
+playwright
+pydantic
+python-dotenv
+requests
+wikipedia

@@ -1,0 +1,8 @@
+__pycache__/
+community_contributions/
+sandbox/
+*.ipynb
+*.db
+*.db-shm
+*.db-wal
+.env
