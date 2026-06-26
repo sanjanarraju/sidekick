@@ -11,11 +11,14 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
 
 
-
 load_dotenv(override=True)
+
+# Pushover credentials for push notifications
 pushover_token = os.getenv("PUSHOVER_TOKEN")
 pushover_user = os.getenv("PUSHOVER_USER")
 pushover_url = "https://api.pushover.net/1/messages.json"
+
+# Web search API wrapper (Serper Google Search)
 serper = GoogleSerperAPIWrapper()
 
 async def playwright_tools():
@@ -51,5 +54,6 @@ async def other_tools():
 
     #python_repl = PythonREPLTool()
     
+    # Combine all tools into one list for the agent
     return file_tools + [push_tool, tool_search, wiki_tool]
 

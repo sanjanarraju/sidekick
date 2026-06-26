@@ -16,7 +16,7 @@ from datetime import datetime
 
 load_dotenv(override=True)
 
-
+# Shared agent state schema
 class State(TypedDict):
     messages: Annotated[List[Any], add_messages]
     success_criteria: str
@@ -24,7 +24,7 @@ class State(TypedDict):
     success_criteria_met: bool
     user_input_needed: bool
 
-
+# Structured output for evaluator LLM
 class EvaluatorOutput(BaseModel):
     feedback: str = Field(description="Feedback on the assistant's response")
     success_criteria_met: bool = Field(description="Whether the success criteria have been met")
@@ -32,7 +32,7 @@ class EvaluatorOutput(BaseModel):
         description="True if more input is needed from the user, or clarifications, or the assistant is stuck"
     )
 
-
+# Sidekick Agent (LangGraph orchestrator)
 class Sidekick:
     def __init__(self):
         self.worker_llm_with_tools = None
@@ -45,6 +45,7 @@ class Sidekick:
         self.browser = None
         self.playwright = None
 
+    # Initialize tools + LLMs
     async def setup(self):
         self.tools, self.browser, self.playwright = await playwright_tools()
         self.tools += await other_tools()
@@ -54,6 +55,7 @@ class Sidekick:
         self.evaluator_llm_with_output = evaluator_llm.with_structured_output(EvaluatorOutput)
         await self.build_graph()
 
+    # Worker node: performs task
     def worker(self, state: State) -> Dict[str, Any]:
         system_message = f"""You are a helpful assistant that can use tools to complete tasks.
     You keep working on a task until either you have a question or clarification for the user, or the success criteria is met.
@@ -71,6 +73,7 @@ class Sidekick:
     If you've finished, reply with the final answer, and don't ask a question; simply reply with the answer.
     """
 
+        # Inject evaluator feedback from previous iteration (self-correction loop)
         if state.get("feedback_on_work"):
             system_message += f"""
     Previously you thought you completed the assignment, but your reply was rejected because the success criteria was not met.
@@ -98,6 +101,7 @@ class Sidekick:
             "messages": [response],
         }
 
+    # Routing: decide tool use vs evaluation
     def worker_router(self, state: State) -> str:
         last_message = state["messages"][-1]
 
@@ -106,6 +110,7 @@ class Sidekick:
         else:
             return "evaluator"
 
+    # Utility: format conversation for evaluator prompt
     def format_conversation(self, messages: List[Any]) -> str:
         conversation = "Conversation history:\n\n"
         for message in messages:
@@ -116,6 +121,7 @@ class Sidekick:
                 conversation += f"Assistant: {text}\n"
         return conversation
 
+    # Evaluator node: judges correctness
     def evaluator(self, state: State) -> State:
         last_response = state["messages"][-1].content
 
@@ -141,6 +147,7 @@ class Sidekick:
     Overall you should give the Assistant the benefit of the doubt if they say they've done something. But you should reject if you feel that more work should go into this.
 
     """
+        # Include prior failure feedback for consistency tracking
         if state["feedback_on_work"]:
             user_message += f"Also, note that in a prior attempt from the Assistant, you provided this feedback: {state['feedback_on_work']}\n"
             user_message += "If you're seeing the Assistant repeating the same mistakes, then consider responding that user input is required."
@@ -164,12 +171,14 @@ class Sidekick:
         }
         return new_state
 
+    # Routing after evaluation
     def route_based_on_evaluation(self, state: State) -> str:
         if state["success_criteria_met"] or state["user_input_needed"]:
             return "END"
         else:
             return "worker"
 
+    # Build LangGraph execution graph
     async def build_graph(self):
         # Set up Graph Builder with State
         graph_builder = StateGraph(State)
@@ -192,6 +201,7 @@ class Sidekick:
         # Compile the graph
         self.graph = graph_builder.compile(checkpointer=self.memory)
 
+    # Main execution entrypoint
     async def run_superstep(self, message, success_criteria, history):
         config = {"configurable": {"thread_id": self.sidekick_id}}
 
@@ -208,6 +218,7 @@ class Sidekick:
         feedback = {"role": "assistant", "content": result["messages"][-1].content}
         return history + [user, reply, feedback]
 
+    # Cleanup browser + Playwright
     def cleanup(self):
         if self.browser:
             try:
