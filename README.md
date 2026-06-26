@@ -40,3 +40,12 @@ export SERPER_API_KEY="your-actual-serper-key"
 
 uv run playwright install
 uv run app.py
+```
+
+<img width="1534" height="626" alt="Screenshot 2026-06-25 at 6 21 55 PM" src="https://github.com/user-attachments/assets/72a67a26-1806-4c13-98fb-568b71e236fa" />
+
+<img width="1511" height="586" alt="Screenshot 2026-06-25 at 6 24 50 PM" src="https://github.com/user-attachments/assets/640fd268-6625-4dde-90ee-08b1d986a09b" />
+
+
+
+
